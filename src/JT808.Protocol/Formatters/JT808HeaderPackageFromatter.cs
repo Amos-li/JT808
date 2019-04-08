@@ -8,7 +8,7 @@ namespace JT808.Protocol.Formatters
 {
     public class JT808HeaderPackageFromatter : IJT808Formatter<JT808HeaderPackage>
     {
-        public JT808HeaderPackage Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808HeaderPackage Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808HeaderPackage jT808HeaderPackage = new JT808HeaderPackage();
@@ -30,11 +30,11 @@ namespace JT808.Protocol.Formatters
                     throw new JT808Exception(JT808ErrorCode.CheckCodeNotEqual, $"{checkCode1}!={checkCode2}");
                 }
             }
-            offset = offset + 1;
+            offset += 1;
             // 3.初始化消息头
             try
             {
-                jT808HeaderPackage.Header = JT808FormatterExtensions.GetFormatter<JT808Header>().Deserialize(buffer.Slice(offset, 13), out readSize);
+                jT808HeaderPackage.Header = JT808FormatterExtensions.GetFormatter<JT808Header>().Deserialize(buffer.Slice(offset, 13), out readSize, config);
             }
             catch (Exception ex)
             {
@@ -65,12 +65,11 @@ namespace JT808.Protocol.Formatters
                     }
                 }
             }
-            offset = readSize;
             readSize = buffer.Length;
             return jT808HeaderPackage;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808HeaderPackage value)
+        public int Serialize(ref byte[] bytes, int offset, JT808HeaderPackage value, IJT808Config config)
         {
             throw new NotImplementedException("只适用反序列化");
         }

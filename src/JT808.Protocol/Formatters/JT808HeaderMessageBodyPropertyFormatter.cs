@@ -9,7 +9,7 @@ namespace JT808.Protocol.Formatters
     /// </summary>
     public class JT808HeaderMessageBodyPropertyFormatter : IJT808Formatter<JT808HeaderMessageBodyProperty>
     {
-        public JT808HeaderMessageBodyProperty Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808HeaderMessageBodyProperty Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808HeaderMessageBodyProperty messageBodyProperty = new JT808HeaderMessageBodyProperty();
@@ -33,7 +33,7 @@ namespace JT808.Protocol.Formatters
             messageBodyProperty.PackageIndex = 0;
             if (messageBodyProperty.IsPackge)
             {
-                offset = offset + 8;
+                offset += 8;
                 messageBodyProperty.PackgeCount = JT808BinaryExtensions.ReadUInt16Little(bytes, ref offset);
                 messageBodyProperty.PackageIndex = JT808BinaryExtensions.ReadUInt16Little(bytes, ref offset);
             }
@@ -41,7 +41,7 @@ namespace JT808.Protocol.Formatters
             return messageBodyProperty;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808HeaderMessageBodyProperty value)
+        public int Serialize(ref byte[] bytes, int offset, JT808HeaderMessageBodyProperty value, IJT808Config config)
         {
             // 2.消息体属性
             Span<char> msgMethod = new char[16];

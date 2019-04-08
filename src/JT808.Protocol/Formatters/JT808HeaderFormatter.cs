@@ -8,7 +8,7 @@ namespace JT808.Protocol.Formatters
     /// </summary>
     public class JT808HeaderFormatter : IJT808Formatter<JT808Header>
     {
-        public JT808Header Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808Header Deserialize(ReadOnlySpan<byte> bytes, out int readSize,IJT808Config config)
         {
             int offset = 0;
             JT808Header jT808Header = new JT808Header
@@ -16,7 +16,7 @@ namespace JT808.Protocol.Formatters
                 // 1.消息ID
                 MsgId = JT808BinaryExtensions.ReadUInt16Little(bytes, ref offset),
                 // 2.消息体属性
-                MessageBodyProperty = JT808FormatterExtensions.GetFormatter<JT808HeaderMessageBodyProperty>().Deserialize(bytes.Slice(offset), out readSize)
+                MessageBodyProperty = JT808FormatterExtensions.GetFormatter<JT808HeaderMessageBodyProperty>().Deserialize(bytes.Slice(offset), out readSize, config)
             };
             offset += readSize;
             // 3.终端手机号 (写死大陆手机号码)
@@ -27,12 +27,12 @@ namespace JT808.Protocol.Formatters
             return jT808Header;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808Header value)
+        public int Serialize(ref byte[] bytes, int offset, JT808Header value, IJT808Config config)
         {
             // 1.消息ID
             offset += JT808BinaryExtensions.WriteUInt16Little(bytes, offset, value.MsgId);
             //2.消息体属性
-            offset = JT808FormatterExtensions.GetFormatter<JT808HeaderMessageBodyProperty>().Serialize(ref bytes, offset, value.MessageBodyProperty);
+            offset = JT808FormatterExtensions.GetFormatter<JT808HeaderMessageBodyProperty>().Serialize(ref bytes, offset, value.MessageBodyProperty, config);
             // 3.终端手机号 (写死大陆手机号码)
             offset += JT808BinaryExtensions.WriteBCDLittle(bytes, offset, value.TerminalPhoneNo, 12);
             //消息流水号

@@ -8,7 +8,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
 {
     public class JT808_0x0802_Formatter : IJT808Formatter<JT808_0x0802>
     {
-        public JT808_0x0802 Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808_0x0802 Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808_0x0802 JT808_0x0802 = new JT808_0x0802
@@ -17,7 +17,6 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
                 MultimediaItemCount = JT808BinaryExtensions.ReadUInt16Little(bytes, ref offset),
                 MultimediaSearchItems = new List<JT808MultimediaSearchProperty>()
             };
-            int bufReadSize;
             for (var i = 0; i < JT808_0x0802.MultimediaItemCount; i++)
             {
                 JT808MultimediaSearchProperty jT808MultimediaSearchProperty = new JT808MultimediaSearchProperty
@@ -26,7 +25,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
                     MultimediaType = JT808BinaryExtensions.ReadByteLittle(bytes, ref offset),
                     ChannelId = JT808BinaryExtensions.ReadByteLittle(bytes, ref offset),
                     EventItemCoding = JT808BinaryExtensions.ReadByteLittle(bytes, ref offset),
-                    Position = JT808FormatterExtensions.GetFormatter<JT808_0x0200>().Deserialize(bytes.Slice(offset, 28), out bufReadSize)
+                    Position = JT808FormatterExtensions.GetFormatter<JT808_0x0200>().Deserialize(bytes.Slice(offset, 28), out _, config)
                 };
                 offset += 28;
                 JT808_0x0802.MultimediaSearchItems.Add(jT808MultimediaSearchProperty);
@@ -35,7 +34,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
             return JT808_0x0802;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808_0x0802 value)
+        public int Serialize(ref byte[] bytes, int offset, JT808_0x0802 value, IJT808Config config)
         {
             offset += JT808BinaryExtensions.WriteUInt16Little(bytes, offset, value.MsgNum);
             offset += JT808BinaryExtensions.WriteUInt16Little(bytes, offset, (ushort)value.MultimediaSearchItems.Count);
@@ -45,7 +44,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
                 offset += JT808BinaryExtensions.WriteByteLittle(bytes, offset, item.MultimediaType);
                 offset += JT808BinaryExtensions.WriteByteLittle(bytes, offset, item.ChannelId);
                 offset += JT808BinaryExtensions.WriteByteLittle(bytes, offset, item.EventItemCoding);
-                int positionOffset = JT808FormatterExtensions.GetFormatter<JT808_0x0200>().Serialize(ref bytes, offset, item.Position);
+                int positionOffset = JT808FormatterExtensions.GetFormatter<JT808_0x0200>().Serialize(ref bytes, offset, item.Position, config);
                 offset += 28;
             }
             return offset;

@@ -14,18 +14,15 @@ namespace JT808.Protocol.Extensions
     /// </summary>
     public static class JT808FormatterResolverExtensions
     {
-        delegate int JT808SerializeMethod(object dynamicFormatter, ref byte[] bytes, int offset, object value);
+        delegate int JT808SerializeMethod(object dynamicFormatter, ref byte[] bytes, int offset, object value, IJT808Config config);
 
-        delegate dynamic JT808DeserializeMethod(object dynamicFormatter, ReadOnlySpan<byte> bytes, out int readSize);
+        delegate dynamic JT808DeserializeMethod(object dynamicFormatter, ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config);
 
         static readonly ConcurrentDictionary<Type, (object Value, JT808SerializeMethod SerializeMethod)> jT808Serializers = new ConcurrentDictionary<Type, (object Value, JT808SerializeMethod SerializeMethod)>();
 
         static readonly ConcurrentDictionary<Type, (object Value, JT808DeserializeMethod DeserializeMethod)> jT808Deserializes = new ConcurrentDictionary<Type, (object Value, JT808DeserializeMethod DeserializeMethod)>();
 
-        //T Deserialize(ReadOnlySpan<byte> bytes, out int readSize);
-        //int Serialize(IMemoryOwner<byte> memoryOwner, int offset, T value);
-
-        public static int JT808DynamicSerialize(object objFormatter, ref byte[] bytes, int offset, dynamic value)
+        public static int JT808DynamicSerialize(object objFormatter, ref byte[] bytes, int offset, dynamic value, IJT808Config config)
         {
             Type type = value.GetType();
             var ti = type.GetTypeInfo();
@@ -39,22 +36,24 @@ namespace JT808.Protocol.Extensions
                     var param1 = Expression.Parameter(typeof(byte[]).MakeByRefType(), "bytes");
                     var param2 = Expression.Parameter(typeof(int), "offset");
                     var param3 = Expression.Parameter(typeof(object), "value");
+                    var param4 = Expression.Parameter(typeof(IJT808Config), "config");
                     var serializeMethodInfo = formatterType.GetRuntimeMethod("Serialize", new[] { typeof(byte[]).MakeByRefType(), typeof(int), t });
                     var body = Expression.Call(
                         Expression.Convert(param0, formatterType),
                         serializeMethodInfo,
                         param1,
                         param2,
-                        ti.IsValueType ? Expression.Unbox(param3, t) : Expression.Convert(param3, t));
-                    var lambda = Expression.Lambda<JT808SerializeMethod>(body, param0, param1, param2, param3).Compile();
+                        ti.IsValueType ? Expression.Unbox(param3, t) : Expression.Convert(param3, t),
+                        param4);
+                    var lambda = Expression.Lambda<JT808SerializeMethod>(body, param0, param1, param2, param3, param4).Compile();
                     formatterAndDelegate = (objFormatter, lambda);
                 }
                 jT808Serializers.TryAdd(t, formatterAndDelegate);
             }
-            return formatterAndDelegate.SerializeMethod(formatterAndDelegate.Value, ref bytes, offset, value);
+            return formatterAndDelegate.SerializeMethod(formatterAndDelegate.Value, ref bytes, offset, value, config);
         }
 
-        public static dynamic JT808DynamicDeserialize(object objFormatter, ReadOnlySpan<byte> bytes, out int readSize)
+        public static dynamic JT808DynamicDeserialize(object objFormatter, ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             var type = objFormatter.GetType();
             (object Value, JT808DeserializeMethod DeserializeMethod) formatterAndDelegate;
@@ -66,19 +65,21 @@ namespace JT808.Protocol.Extensions
                     ParameterExpression param0 = Expression.Parameter(typeof(object), "formatter");
                     ParameterExpression param1 = Expression.Parameter(typeof(ReadOnlySpan<byte>), "bytes");
                     ParameterExpression param2 = Expression.Parameter(typeof(int).MakeByRefType(), "readSize");
+                    ParameterExpression param3 = Expression.Parameter(typeof(IJT808Config), "config");
                     var deserializeMethodInfo = type.GetRuntimeMethod("Deserialize", new[] { typeof(ReadOnlySpan<byte>), typeof(int).MakeByRefType() });
                     var body = Expression.Call(
                         Expression.Convert(param0, type),
                         deserializeMethodInfo,
                         param1,
-                        param2
+                        param2,
+                        param3
                         );
-                    var lambda = Expression.Lambda<JT808DeserializeMethod>(body, param0, param1, param2).Compile();
+                    var lambda = Expression.Lambda<JT808DeserializeMethod>(body, param0, param1, param2, param3).Compile();
                     formatterAndDelegate = (objFormatter, lambda);
                 }
                 jT808Deserializes.TryAdd(t, formatterAndDelegate);
             }
-            return formatterAndDelegate.DeserializeMethod(formatterAndDelegate.Value, bytes, out readSize);
+            return formatterAndDelegate.DeserializeMethod(formatterAndDelegate.Value, bytes, out readSize, config);
         }
     }
 }

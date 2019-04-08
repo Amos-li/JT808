@@ -6,7 +6,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
 {
     public class JT808_0x0100_Formatter : IJT808Formatter<JT808_0x0100>
     {
-        public JT808_0x0100 Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808_0x0100 Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808_0x0100 jT808_0X0100 = new JT808_0x0100
@@ -23,7 +23,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
             return jT808_0X0100;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808_0x0100 value)
+        public int Serialize(ref byte[] bytes, int offset, JT808_0x0100 value, IJT808Config config)
         {
             offset += JT808BinaryExtensions.WriteUInt16Little(bytes, offset, value.AreaID);
             offset += JT808BinaryExtensions.WriteUInt16Little(bytes, offset, value.CityOrCountyId);

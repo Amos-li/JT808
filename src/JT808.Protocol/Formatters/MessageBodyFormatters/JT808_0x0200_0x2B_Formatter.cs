@@ -6,7 +6,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
 {
     public class JT808_0x0200_0x2B_Formatter : IJT808Formatter<JT808_0x0200_0x2B>
     {
-        public JT808_0x0200_0x2B Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808_0x0200_0x2B Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808_0x0200_0x2B jT808LocationAttachImpl0x2B = new JT808_0x0200_0x2B
@@ -19,7 +19,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
             return jT808LocationAttachImpl0x2B;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808_0x0200_0x2B value)
+        public int Serialize(ref byte[] bytes, int offset, JT808_0x0200_0x2B value, IJT808Config config)
         {
             offset += JT808BinaryExtensions.WriteByteLittle(bytes, offset, value.AttachInfoId);
             offset += JT808BinaryExtensions.WriteByteLittle(bytes, offset, value.AttachInfoLength);

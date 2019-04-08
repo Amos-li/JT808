@@ -11,7 +11,7 @@ namespace JT808.Protocol.Formatters
     /// </summary>
     public class JT808PackageFromatter : IJT808Formatter<JT808Package>
     {
-        public JT808Package Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808Package Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808Package jT808Package = new JT808Package();
@@ -34,11 +34,11 @@ namespace JT808.Protocol.Formatters
                 }
             }
             jT808Package.Begin = buffer[offset];
-            offset = offset + 1;
+            offset += 1;
             // 3.初始化消息头
             try
             {
-                jT808Package.Header = JT808FormatterExtensions.GetFormatter<JT808Header>().Deserialize(buffer.Slice(offset), out readSize);
+                jT808Package.Header = JT808FormatterExtensions.GetFormatter<JT808Header>().Deserialize(buffer.Slice(offset), out readSize, config);
             }
             catch (Exception ex)
             {
@@ -63,7 +63,7 @@ namespace JT808.Protocol.Formatters
                                 jT808Package.Bodies = JT808FormatterResolverExtensions.JT808DynamicDeserialize(
                                     JT808FormatterExtensions.GetFormatter(typeof(JT808SplitPackageBodies)),
                                     buffer.Slice(offset + 1, jT808Package.Header.MessageBodyProperty.DataLength),
-                                    out readSize);
+                                    out readSize, config);
                             }
                             catch (Exception ex)
                             {
@@ -78,7 +78,7 @@ namespace JT808.Protocol.Formatters
                                 jT808Package.Bodies = JT808FormatterResolverExtensions.JT808DynamicDeserialize(
                                     JT808FormatterExtensions.GetFormatter(jT808BodiesImplType),
                                     buffer.Slice(offset + 1, jT808Package.Header.MessageBodyProperty.DataLength),
-                                    out readSize);
+                                    out readSize, config);
                             }
                             catch (Exception ex)
                             {
@@ -94,7 +94,7 @@ namespace JT808.Protocol.Formatters
                             jT808Package.Bodies = JT808FormatterResolverExtensions.JT808DynamicDeserialize(
                                 JT808FormatterExtensions.GetFormatter(jT808BodiesImplType),
                                 buffer.Slice(offset + 1, jT808Package.Header.MessageBodyProperty.DataLength),
-                                out readSize);
+                                out readSize, config);
                         }
                         catch (Exception ex)
                         {
@@ -108,7 +108,7 @@ namespace JT808.Protocol.Formatters
             return jT808Package;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808Package value)
+        public int Serialize(ref byte[] bytes, int offset, JT808Package value, IJT808Config config)
         {
             // 1. 先判断是否分包（理论下发不需分包，但为了统一还是加上分包处理）
             // 2. 先序列化数据体，根据数据体的长度赋值给头部，在序列化头部。
@@ -127,7 +127,7 @@ namespace JT808.Protocol.Formatters
                     if (!value.Bodies.SkipSerialization)
                     {
                         // 4.1 处理数据体
-                        messageBodyOffset = JT808FormatterResolverExtensions.JT808DynamicSerialize(JT808FormatterExtensions.GetFormatter(jT808BodiesImplType), ref bytes, offset, value.Bodies);
+                        messageBodyOffset = JT808FormatterResolverExtensions.JT808DynamicSerialize(JT808FormatterExtensions.GetFormatter(jT808BodiesImplType), ref bytes, offset, value.Bodies, config);
                     }
                 }
             }
@@ -142,12 +142,11 @@ namespace JT808.Protocol.Formatters
             offset += JT808BinaryExtensions.WriteByteLittle(bytes, offset, value.Begin);
             // 2.赋值头数据长度
             value.Header.MessageBodyProperty.DataLength = messageBodyOffset;
-            offset = JT808FormatterExtensions.GetFormatter<JT808Header>().Serialize(ref bytes, offset, value.Header);
+            offset = JT808FormatterExtensions.GetFormatter<JT808Header>().Serialize(ref bytes, offset, value.Header, config);
             if (messageBodyOffset != 0)
             {
                 Array.Copy(messageBodyBytes, 0, bytes, offset, messageBodyOffset);
                 offset += messageBodyOffset;
-                messageBodyBytes = null;
             }
             // 4.校验码
             offset += JT808BinaryExtensions.WriteByteLittle(bytes, offset, bytes.ToXor(1, offset));

@@ -8,7 +8,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
 {
     public class JT808_0x8606_Formatter : IJT808Formatter<JT808_0x8606>
     {
-        public JT808_0x8606 Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808_0x8606 Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808_0x8606 jT808_0X8606 = new JT808_0x8606
@@ -55,7 +55,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
             return jT808_0X8606;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808_0x8606 value)
+        public int Serialize(ref byte[] bytes, int offset, JT808_0x8606 value, IJT808Config config)
         {
             offset += JT808BinaryExtensions.WriteUInt32Little(bytes, offset, value.RouteId);
             offset += JT808BinaryExtensions.WriteUInt16Little(bytes, offset, value.RouteProperty);
@@ -69,7 +69,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
                 if (value.EndTime.HasValue)
                     offset += JT808BinaryExtensions.WriteDateTime6Little(bytes, offset, value.EndTime.Value);
             }
-            bool bit1Flag = routeProperty16Bit.Slice(routeProperty16Bit.Length - 2, 1).ToString().Equals("0");
+            //bool bit1Flag = routeProperty16Bit.Slice(routeProperty16Bit.Length - 2, 1).ToString().Equals("0");
             if (value.InflectionPointItems != null && value.InflectionPointItems.Count > 0)
             {
                 offset += JT808BinaryExtensions.WriteUInt16Little(bytes, offset, (ushort)value.InflectionPointItems.Count);

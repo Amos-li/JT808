@@ -9,23 +9,23 @@ namespace JT808.Protocol
     /// </summary>
     public static class JT808Serializer
     {
-        public static byte[] Serialize(JT808Package jT808Package, int minBufferSize = 1024)
+        public static byte[] Serialize(JT808Package jT808Package, IJT808Config config)
         {
-            return Serialize<JT808Package>(jT808Package, minBufferSize);
+            return Serialize<JT808Package>(jT808Package, config);
         }
 
-        public static JT808Package Deserialize(ReadOnlySpan<byte> bytes)
+        public static JT808Package Deserialize(ReadOnlySpan<byte> bytes,IJT808Config config)
         {
-            return Deserialize<JT808Package>(bytes);
+            return Deserialize<JT808Package>(bytes, config);
         }
 
-        public static byte[] Serialize<T>(T obj, int minBufferSize = 1024)
+        public static byte[] Serialize<T>(T obj, IJT808Config config)
         {
             var formatter = JT808FormatterExtensions.GetFormatter<T>();
-            byte[] buffer = JT808ArrayPool.Rent(minBufferSize);
+            byte[] buffer = JT808ArrayPool.Rent(1024);
             try
             {
-                var len = formatter.Serialize(ref buffer, 0, obj);
+                var len = formatter.Serialize(ref buffer, 0, obj, config);
                 return buffer.AsSpan(0, len).ToArray();
             }
             finally
@@ -34,10 +34,10 @@ namespace JT808.Protocol
             }
         }
 
-        public static T Deserialize<T>(ReadOnlySpan<byte> bytes)
+        public static T Deserialize<T>(ReadOnlySpan<byte> bytes, IJT808Config config)
         {
             var formatter = JT808FormatterExtensions.GetFormatter<T>();
-            return formatter.Deserialize(bytes, out int readSize);
+            return formatter.Deserialize(bytes, out _, config);
         }
 
         /// <summary>
@@ -46,16 +46,16 @@ namespace JT808.Protocol
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        public static JT808HeaderPackage HeaderDeserialize(ReadOnlySpan<byte> bytes)
+        public static JT808HeaderPackage HeaderDeserialize(ReadOnlySpan<byte> bytes, IJT808Config config)
         {
             var formatter = JT808FormatterExtensions.GetFormatter<JT808HeaderPackage>();
-            return formatter.Deserialize(bytes, out int readSize);
+            return formatter.Deserialize(bytes, out _, config);
         }
 
-        public static dynamic Deserialize(ReadOnlySpan<byte> bytes, Type type)
+        public static dynamic Deserialize(ReadOnlySpan<byte> bytes, Type type, IJT808Config config)
         {
             var formatter = JT808FormatterExtensions.GetFormatter(type);
-            return JT808FormatterResolverExtensions.JT808DynamicDeserialize(formatter, bytes, out int readSize);
+            return JT808FormatterResolverExtensions.JT808DynamicDeserialize(formatter, bytes, out _, config);
         }
     }
 }

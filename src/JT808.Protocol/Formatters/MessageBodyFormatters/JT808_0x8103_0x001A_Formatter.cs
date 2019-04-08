@@ -6,7 +6,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
 {
     public class JT808_0x8103_0x001A_Formatter : IJT808Formatter<JT808_0x8103_0x001A>
     {
-        public JT808_0x8103_0x001A Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808_0x8103_0x001A Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808_0x8103_0x001A jT808_0x8103_0x001A = new JT808_0x8103_0x001A
@@ -18,7 +18,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
             return jT808_0x8103_0x001A;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808_0x8103_0x001A value)
+        public int Serialize(ref byte[] bytes, int offset, JT808_0x8103_0x001A value, IJT808Config config)
         {
             offset += 1;
             var lenth = JT808BinaryExtensions.WriteStringLittle(bytes, offset, value.ParamValue);

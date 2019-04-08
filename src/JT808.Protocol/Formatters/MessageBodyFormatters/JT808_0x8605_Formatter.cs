@@ -7,7 +7,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
 {
     public class JT808_0x8605_Formatter : IJT808Formatter<JT808_0x8605>
     {
-        public JT808_0x8605 Deserialize(ReadOnlySpan<byte> bytes, out int readSize)
+        public JT808_0x8605 Deserialize(ReadOnlySpan<byte> bytes, out int readSize, IJT808Config config)
         {
             int offset = 0;
             JT808_0x8605 jT808_0X8605 = new JT808_0x8605
@@ -26,7 +26,7 @@ namespace JT808.Protocol.Formatters.MessageBodyFormatters
             return jT808_0X8605;
         }
 
-        public int Serialize(ref byte[] bytes, int offset, JT808_0x8605 value)
+        public int Serialize(ref byte[] bytes, int offset, JT808_0x8605 value, IJT808Config config)
         {
             if (value.AreaIds != null)
             {
