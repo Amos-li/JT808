@@ -3,6 +3,7 @@ using JT808.Protocol.Exceptions;
 using JT808.Protocol.Extensions;
 using JT808.Protocol.Internal;
 using System;
+using JT808.Protocol.Interfaces;
 
 namespace JT808.Protocol.Formatters
 {
@@ -26,7 +27,7 @@ namespace JT808.Protocol.Formatters
             //  2.3. 从消息头到校验码前一个字节
             byte checkCode = buffer.ToXor(1, checkIndex);
             //  2.4. 验证校验码
-            if (!JT808GlobalConfig.Instance.SkipCRCCode)
+            if (!config.SkipCRCCode)
             {
                 if (jT808Package.CheckCode != checkCode)
                 {

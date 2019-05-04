@@ -3,6 +3,7 @@ using JT808.Protocol.Metadata;
 using JT808.Protocol.MessageBody;
 using System;
 using System.Collections.Generic;
+using JT808.Protocol.Interfaces;
 
 namespace JT808.Protocol.Formatters.MessageBodyFormatters
 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using JT808.Protocol.Interfaces;
 
 namespace JT808.Protocol.Formatters
 {

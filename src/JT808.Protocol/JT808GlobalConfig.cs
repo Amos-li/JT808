@@ -1,5 +1,6 @@
 ﻿using JT808.Protocol.Internal;
 using JT808.Protocol.MessageBody;
+using JT808.Protocol.Interfaces;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -22,11 +23,11 @@ namespace JT808.Protocol
             Encoding = Encoding.GetEncoding("GBK");
         }
 
-        public IMsgSNDistributed MsgSNDistributed { get; private set; }
+        public IJT808MsgSNDistributed MsgSNDistributed { get; private set; }
 
-        public IJT808ICompress Compress { get; private set; }
+        public IJT808Compress Compress { get; private set; }
 
-        public ISplitPackageStrategy SplitPackageStrategy { get; private set; }
+        public IJT808SplitPackageStrategy SplitPackageStrategy { get; private set; }
 
         public static JT808GlobalConfig Instance
         {
@@ -50,7 +51,7 @@ namespace JT808.Protocol
         /// </summary>
         /// <param name="msgSNDistributed"></param>
         /// <returns></returns>
-        public JT808GlobalConfig SetMsgSNDistributed(IMsgSNDistributed msgSNDistributed)
+        public JT808GlobalConfig SetMsgSNDistributed(IJT808MsgSNDistributed msgSNDistributed)
         {
             instance.Value.MsgSNDistributed = msgSNDistributed;
             return instance.Value;
@@ -62,7 +63,7 @@ namespace JT808.Protocol
         /// </summary>
         /// <param name="compressImpl"></param>
         /// <returns></returns>
-        public JT808GlobalConfig SetCompress(IJT808ICompress compressImpl)
+        public JT808GlobalConfig SetCompress(IJT808Compress compressImpl)
         {
             instance.Value.Compress = compressImpl;
             return instance.Value;
@@ -73,7 +74,7 @@ namespace JT808.Protocol
         /// </summary>
         /// <param name="splitPackageStrategy"></param>
         /// <returns></returns>
-        public JT808GlobalConfig SetSplitPackageStrategy(ISplitPackageStrategy splitPackageStrategy)
+        public JT808GlobalConfig SetSplitPackageStrategy(IJT808SplitPackageStrategy splitPackageStrategy)
         {
             instance.Value.SplitPackageStrategy = splitPackageStrategy;
             return instance.Value;

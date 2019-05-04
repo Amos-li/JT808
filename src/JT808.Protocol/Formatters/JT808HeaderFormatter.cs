@@ -1,5 +1,7 @@
 ﻿using JT808.Protocol.Extensions;
 using System;
+using System.Buffers.Binary;
+using JT808.Protocol.Interfaces;
 
 namespace JT808.Protocol.Formatters
 {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
+using JT808.Protocol.Interfaces;
 
 namespace JT808.Protocol.Extensions
 {

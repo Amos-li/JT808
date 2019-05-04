@@ -1,4 +1,5 @@
 ﻿using JT808.Protocol.Extensions;
+using JT808.Protocol.Interfaces;
 using JT808.Protocol.MessageBody;
 using System;
 

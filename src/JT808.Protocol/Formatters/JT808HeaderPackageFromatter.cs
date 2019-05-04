@@ -3,6 +3,7 @@ using JT808.Protocol.Exceptions;
 using JT808.Protocol.Extensions;
 using JT808.Protocol.Internal;
 using System;
+using JT808.Protocol.Interfaces;
 
 namespace JT808.Protocol.Formatters
 {

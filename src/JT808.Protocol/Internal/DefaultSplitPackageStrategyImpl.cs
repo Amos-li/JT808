@@ -1,10 +1,11 @@
 ﻿using JT808.Protocol.Metadata;
+using JT808.Protocol.Interfaces;
 using System;
 using System.Collections.Generic;
 
 namespace JT808.Protocol.Internal
 {
-    internal class DefaultSplitPackageStrategyImpl : ISplitPackageStrategy
+    internal class DefaultSplitPackageStrategyImpl : IJT808SplitPackageStrategy
     {
         private const int N = 256 * 3;
 

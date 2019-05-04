@@ -1,9 +1,9 @@
-﻿namespace JT808.Protocol
+﻿namespace JT808.Protocol.Interfaces
 {
     /// <summary>
     /// 压缩接口
     /// </summary>
-    public interface IJT808ICompress
+    public interface IJT808Compress
     {
         byte[] Compress(byte[] data);
 
